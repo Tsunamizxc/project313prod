@@ -75,6 +75,13 @@
 	margin-top: 0;
 }
 
+.tag--active:hover,
+.tag--active:focus-visible {
+	color: var(--color-white);
+	border-color: var(--color-navy);
+	background: var(--color-navy);
+}
+
 html.is-lock {
 	scroll-behavior: auto !important;
 }
