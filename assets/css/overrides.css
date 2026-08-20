@@ -41,6 +41,13 @@
 	line-height: 1.6;
 }
 
+@media (min-width: 769px) {
+	.page-head__text {
+		max-width: 104rem;
+		font-size: 1.8rem;
+	}
+}
+
 .page-head__text p {
 	margin: 0 0 1rem;
 }
@@ -809,6 +816,10 @@ a.kids-card--link .kids-card__more {
 
 .kids-card__btn {
 	display: none;
+}
+
+.schedule-teaser__names {
+	max-width: 31rem;
 }
 
 /* Service card slider layout fix */

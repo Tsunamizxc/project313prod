@@ -57,7 +57,7 @@
 			'<div class="schedule-teaser__row">' +
 				'<div class="schedule-teaser__info">' +
 					'<span class="schedule-teaser__time">' + esc(item.time) + '</span>' +
-					'<div>' +
+					'<div class="schedule-teaser__names">' +
 						'<p class="schedule-teaser__dir">' + esc(item.dir) + '</p>' +
 						'<p class="schedule-teaser__meta">' + esc(meta) + '</p>' +
 					'</div>' +
