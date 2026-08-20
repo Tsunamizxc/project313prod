@@ -628,8 +628,8 @@ a.contacts__value:hover {
 @media (min-width: 769px) {
 	.schedule-table--extended .schedule-table__head,
 	.schedule-table--extended .schedule-table__row {
-		-ms-grid-columns: 12rem 1.2fr 1fr 1fr 1fr 12rem;
-		grid-template-columns: 12rem 1.2fr 1fr 1fr 1fr 12rem;
+		-ms-grid-columns: 13rem 1fr 1fr 1fr 1fr 18rem;
+		grid-template-columns: 13rem 1fr 1fr 1fr 1fr 18rem;
 	}
 
 	.schedule-table__day-m {
@@ -823,6 +823,15 @@ a.contacts__value:hover {
 
 /* Teachers: 3 columns, taller photos */
 @media (min-width: 1025px) {
+	.about {
+		-ms-grid-columns: 0.95fr 2.05fr;
+		grid-template-columns: 0.95fr 2.05fr;
+		gap: 6.4rem;
+		-webkit-box-align: start;
+		-ms-flex-align: start;
+		align-items: start;
+	}
+
 	.teachers-grid {
 		-ms-grid-columns: (1fr)[3];
 		grid-template-columns: repeat(3, 1fr);

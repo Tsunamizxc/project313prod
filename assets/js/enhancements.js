@@ -555,11 +555,41 @@
 	}
 
 	function galleryAlbums() {
+		function isAdminPhoto(src) {
+			if (!src) {
+				return false;
+			}
+			var value = String(src);
+			if (value.indexOf('unsplash.com') !== -1) {
+				return false;
+			}
+			return /^https?:\/\//i.test(value) || value.indexOf('/') === 0;
+		}
+
 		if (Array.isArray(data.GALLERY_ALBUMS) && data.GALLERY_ALBUMS.length) {
-			return data.GALLERY_ALBUMS;
+			return data.GALLERY_ALBUMS
+				.map(function (album) {
+					var photos = (album.photos || []).filter(isAdminPhoto);
+					return {
+						id: album.id,
+						title: album.title,
+						year: album.year,
+						cat: album.cat,
+						cover: isAdminPhoto(album.cover) ? album.cover : photos[0] || '',
+						photos: photos,
+						count: photos.length,
+					};
+				})
+				.filter(function (album) {
+					return album.photos.length;
+				});
 		}
 		var grouped = {};
 		(Array.isArray(data.GALLERY) ? data.GALLERY : []).forEach(function (item) {
+			var src = item.photoUrl || item.photo;
+			if (!isAdminPhoto(src)) {
+				return;
+			}
 			var key = String(item.album || '') + '|' + String(item.year || '') + '|' + String(item.cat || '');
 			if (!grouped[key]) {
 				grouped[key] = {
@@ -567,16 +597,11 @@
 					title: item.album || '',
 					year: item.year,
 					cat: item.cat,
-					cover: item.photoUrl || '',
+					cover: src,
 					photos: [],
 				};
 			}
-			if (item.photoUrl) {
-				grouped[key].photos.push(item.photoUrl);
-				if (!grouped[key].cover) {
-					grouped[key].cover = item.photoUrl;
-				}
-			}
+			grouped[key].photos.push(src);
 		});
 		return Object.keys(grouped).map(function (key) {
 			grouped[key].count = grouped[key].photos.length;

@@ -185,7 +185,6 @@ function p313_get_frontend_data() {
 		$year     = (int) p313_field( 'year', 0, $id );
 		$cat      = p313_field( 'category', '', $id );
 		$ratio    = p313_field( 'ratio', 'square', $id );
-		$photo    = p313_field( 'photo_id', '', $id );
 		$photos   = p313_gallery_urls( p313_field( 'photos', array(), $id ), 'large' );
 		$thumb    = get_the_post_thumbnail_url( $id, 'large' );
 		$album    = get_the_title( $id );
@@ -193,9 +192,14 @@ function p313_get_frontend_data() {
 		if ( $thumb && ! in_array( $thumb, $urls, true ) ) {
 			array_unshift( $urls, $thumb );
 		}
-		if ( ! $urls && $photo ) {
-			$urls[] = p313_unsplash( $photo, 600, 600 );
-		}
+		$urls = array_values(
+			array_filter(
+				$urls,
+				function ( $url ) {
+					return $url && false === strpos( (string) $url, 'unsplash.com' );
+				}
+			)
+		);
 		if ( ! $urls ) {
 			continue;
 		}
@@ -219,7 +223,7 @@ function p313_get_frontend_data() {
 				'year'     => $year,
 				'cat'      => $cat,
 				'ratio'    => $item_ratio,
-				'photo'    => $photo ?: '',
+				'photo'    => $url,
 				'photoUrl' => $url,
 				'album'    => $album,
 			);
