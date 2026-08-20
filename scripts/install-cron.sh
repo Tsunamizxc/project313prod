@@ -32,8 +32,13 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 PULL_SCRIPT="$SCRIPT_DIR/auto-pull.sh"
 MARKER="# project313-auto-pull"
-# Clean env for Timeweb cron (avoids getaddrinfo thread failures more often).
-CRON_LINE="*/${MINUTES} * * * * cd ${REPO_ROOT} && /usr/bin/env -i HOME=\"\$HOME\" USER=\"\$USER\" PATH=\"/usr/local/bin:/usr/bin:/bin\" RES_OPTIONS=single-request-reopen LANG=C.UTF-8 /bin/bash ${PULL_SCRIPT} >/dev/null 2>&1 ${MARKER}"
+
+HOME_DIR="${HOME:-$(getent passwd "$(id -un)" 2>/dev/null | cut -d: -f6)}"
+HOME_DIR="${HOME_DIR:-/home/$(id -un)}"
+USER_NAME="$(id -un)"
+
+# Absolute HOME/USER — cron + env -i otherwise breaks git HTTPS/SSH.
+CRON_LINE="*/${MINUTES} * * * * cd ${REPO_ROOT} && /usr/bin/env -i HOME=${HOME_DIR} USER=${USER_NAME} PATH=/usr/local/bin:/usr/bin:/bin RES_OPTIONS=single-request-reopen LANG=C.UTF-8 /bin/bash ${PULL_SCRIPT} >/dev/null 2>&1 ${MARKER}"
 
 chmod +x "$PULL_SCRIPT"
 
