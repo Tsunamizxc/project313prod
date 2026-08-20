@@ -218,10 +218,18 @@
 				.map(function (group, index) {
 					var href = group.url || '#';
 					var num = String(index + 1).padStart(2, '0');
+					var photo = group.photoUrl
+						? '<div class="kids-card__photo-wrap"><img class="kids-card__photo" src="' +
+							esc(group.photoUrl) +
+							'" alt="' +
+							esc(group.name) +
+							'" loading="lazy"></div>'
+						: '';
 					return (
 						'<a class="card kids-card kids-card--link reveal" href="' +
 						esc(href) +
 						'">' +
+						photo +
 						'<span class="kids-card__num">«' +
 						num +
 						'»</span>' +
@@ -546,6 +554,223 @@
 		container.setAttribute('data-years-ready', '1');
 	}
 
+	function galleryAlbums() {
+		if (Array.isArray(data.GALLERY_ALBUMS) && data.GALLERY_ALBUMS.length) {
+			return data.GALLERY_ALBUMS;
+		}
+		var grouped = {};
+		(Array.isArray(data.GALLERY) ? data.GALLERY : []).forEach(function (item) {
+			var key = String(item.album || '') + '|' + String(item.year || '') + '|' + String(item.cat || '');
+			if (!grouped[key]) {
+				grouped[key] = {
+					id: key,
+					title: item.album || '',
+					year: item.year,
+					cat: item.cat,
+					cover: item.photoUrl || '',
+					photos: [],
+				};
+			}
+			if (item.photoUrl) {
+				grouped[key].photos.push(item.photoUrl);
+				if (!grouped[key].cover) {
+					grouped[key].cover = item.photoUrl;
+				}
+			}
+		});
+		return Object.keys(grouped).map(function (key) {
+			grouped[key].count = grouped[key].photos.length;
+			return grouped[key];
+		});
+	}
+
+	function enhanceGallery() {
+		var grid = document.querySelector('[data-gallery-grid]');
+		var cats = document.querySelector('[data-gallery-cats]');
+		var years = document.querySelector('[data-gallery-years]');
+		if (!grid) {
+			return;
+		}
+		if (grid.getAttribute('data-albums-ready')) {
+			return;
+		}
+		grid.setAttribute('data-albums-ready', '1');
+
+		var albums = galleryAlbums();
+		var openId = '';
+
+		function activeValue(root, attr) {
+			if (!root) {
+				return 'Все';
+			}
+			var btn = root.querySelector('.tag--active[' + attr + ']');
+			return btn ? btn.getAttribute(attr) || 'Все' : 'Все';
+		}
+
+		function filteredAlbums() {
+			var cat = activeValue(cats, 'data-cat');
+			var year = activeValue(years, 'data-year');
+			return albums.filter(function (album) {
+				var catOk = cat === 'Все' || album.cat === cat;
+				var yearOk = year === 'Все' || String(album.year) === String(year);
+				return catOk && yearOk;
+			});
+		}
+
+		function openLightbox(src, alt) {
+			var box = document.querySelector('[data-lightbox]');
+			var img = document.querySelector('[data-lightbox-img]');
+			if (!box || !img || !src) {
+				return;
+			}
+			if (box._closeTimer) {
+				clearTimeout(box._closeTimer);
+				box._closeTimer = null;
+			}
+			box.classList.remove('lightbox--closing');
+			img.src = src;
+			img.alt = alt || '';
+			box.classList.add('lightbox--open');
+			box.setAttribute('aria-hidden', 'false');
+		}
+
+		function bindPhotos() {
+			grid.querySelectorAll('[data-album-photo]').forEach(function (btn) {
+				btn.addEventListener('click', function () {
+					openLightbox(btn.getAttribute('data-album-photo') || '', btn.getAttribute('data-alt') || '');
+				});
+			});
+		}
+
+		function paintPhotos(album) {
+			var meta = [album.cat, album.year].filter(Boolean).join(' · ');
+			grid.innerHTML =
+				'<div class="gallery-album-view" data-gallery-view>' +
+					'<button class="link-arrow gallery-album__back" type="button" data-gallery-back>' +
+						'К событиям' +
+					'</button>' +
+					'<h2 class="gallery-album__heading">' +
+					esc(album.title) +
+					'</h2>' +
+					(meta ? '<p class="gallery-album__sub">' + esc(meta) + '</p>' : '') +
+					'<div class="gallery-masonry">' +
+					(album.photos || [])
+						.map(function (src) {
+							return (
+								'<button class="gallery-masonry__item reveal" type="button" data-album-photo="' +
+								esc(src) +
+								'" data-alt="' +
+								esc(album.title) +
+								'">' +
+								'<img class="gallery-masonry__img" src="' +
+								esc(src) +
+								'" alt="' +
+								esc(album.title) +
+								'" loading="lazy">' +
+								'</button>'
+							);
+						})
+						.join('') +
+					'</div>' +
+				'</div>';
+			var back = grid.querySelector('[data-gallery-back]');
+			if (back) {
+				back.addEventListener('click', function () {
+					openId = '';
+					paintAlbums();
+				});
+			}
+			bindPhotos();
+		}
+
+		function paintAlbums() {
+			var rows = filteredAlbums();
+			if (openId) {
+				var current = null;
+				rows.forEach(function (album) {
+					if (String(album.id) === String(openId)) {
+						current = album;
+					}
+				});
+				if (current) {
+					paintPhotos(current);
+					return;
+				}
+				openId = '';
+			}
+			if (!rows.length) {
+				grid.innerHTML =
+					'<div class="empty-state">' +
+						'<h3 class="empty-state__title">Здесь пока пусто</h3>' +
+						'<p class="empty-state__text">Для выбранных фильтров нет событий. Попробуйте другой год или категорию.</p>' +
+					'</div>';
+				return;
+			}
+			grid.innerHTML =
+				'<div class="gallery-albums" data-gallery-view>' +
+				rows
+					.map(function (album) {
+						var meta = [album.cat, album.year, album.count ? album.count + ' фото' : '']
+							.filter(Boolean)
+							.join(' · ');
+						return (
+							'<button class="card gallery-album reveal" type="button" data-gallery-album="' +
+							esc(album.id) +
+							'">' +
+							(album.cover
+								? '<img class="gallery-album__img" src="' +
+									esc(album.cover) +
+									'" alt="' +
+									esc(album.title) +
+									'" loading="lazy">'
+								: '') +
+							'<div class="gallery-album__body">' +
+							(meta ? '<p class="gallery-album__meta">' + esc(meta) + '</p>' : '') +
+							'<h3 class="gallery-album__title">' +
+							esc(album.title) +
+							'</h3>' +
+							'<span class="link-arrow gallery-album__more">Открыть альбом</span>' +
+							'</div></button>'
+						);
+					})
+					.join('') +
+				'</div>';
+			grid.querySelectorAll('[data-gallery-album]').forEach(function (btn) {
+				btn.addEventListener('click', function () {
+					openId = btn.getAttribute('data-gallery-album') || '';
+					paintAlbums();
+				});
+			});
+		}
+
+		observe(grid, function () {
+			if (grid.querySelector('[data-gallery-view]')) {
+				return;
+			}
+			paintAlbums();
+		});
+
+		if (cats) {
+			cats.addEventListener('click', function (event) {
+				if (!event.target.closest('[data-cat]')) {
+					return;
+				}
+				openId = '';
+				setTimeout(paintAlbums, 0);
+			});
+		}
+		if (years) {
+			years.addEventListener('click', function (event) {
+				if (!event.target.closest('[data-year]')) {
+					return;
+				}
+				openId = '';
+				setTimeout(paintAlbums, 0);
+			});
+		}
+		paintAlbums();
+	}
+
 	function vkVideoHtml(item) {
 		if (item && item.videoHtml) {
 			return item.videoHtml;
@@ -786,6 +1011,7 @@
 		enhanceAwards();
 		enhanceReviews();
 		enhanceGalleryYears();
+		enhanceGallery();
 		enhanceServiceGrid(document.querySelector('[data-services-home]'));
 		enhanceServiceGrid(document.querySelector('[data-services-page]'));
 		watchReveals();

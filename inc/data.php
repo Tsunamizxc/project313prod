@@ -76,14 +76,16 @@ function p313_get_frontend_data() {
 
 	$kids = array();
 	foreach ( p313_posts( 'p313_kids' ) as $post ) {
-		$id = $post->ID;
-		$kids[] = array(
-			'id'    => (string) $id,
-			'name'  => get_the_title( $id ),
-			'age'   => p313_field( 'age', '', $id ),
-			'note'  => '',
-			'url'   => get_permalink( $id ),
-			'level' => p313_field( 'level', '', $id ),
+		$id        = $post->ID;
+		$photo_url = p313_img_url( p313_field( 'photo', '', $id ), 'p313-card' ) ?: get_the_post_thumbnail_url( $id, 'p313-card' );
+		$kids[]    = array(
+			'id'       => (string) $id,
+			'name'     => get_the_title( $id ),
+			'age'      => p313_field( 'age', '', $id ),
+			'note'     => '',
+			'photoUrl' => $photo_url ?: '',
+			'url'      => get_permalink( $id ),
+			'level'    => p313_field( 'level', '', $id ),
 		);
 	}
 
@@ -177,6 +179,7 @@ function p313_get_frontend_data() {
 	}
 
 	$gallery = array();
+	$albums  = array();
 	foreach ( p313_posts( 'p313_gallery' ) as $post ) {
 		$id       = $post->ID;
 		$year     = (int) p313_field( 'year', 0, $id );
@@ -196,6 +199,15 @@ function p313_get_frontend_data() {
 		if ( ! $urls ) {
 			continue;
 		}
+		$albums[] = array(
+			'id'     => (string) $id,
+			'title'  => $album,
+			'year'   => $year,
+			'cat'    => $cat,
+			'cover'  => $urls[0],
+			'photos' => $urls,
+			'count'  => count( $urls ),
+		);
 		$ratios = array( 'square', 'wide', 'tall' );
 		foreach ( $urls as $index => $url ) {
 			$item_ratio = $ratio;
@@ -345,6 +357,7 @@ function p313_get_frontend_data() {
 		'REVIEWS'      => $reviews,
 		'EVENTS'       => $events,
 		'GALLERY'      => $gallery,
+		'GALLERY_ALBUMS' => $albums,
 		'GALLERY_CATS' => array_values( array_filter( array_map( 'trim', explode( ',', (string) p313_option( 'gallery_cats', 'Все,Конкурсы,Мероприятия,Отчётные,Будни' ) ) ) ) ),
 		'GALLERY_YEARS'=> ( function () {
 			$custom = array_values( array_filter( array_map( 'trim', explode( ',', (string) p313_option( 'gallery_years', '' ) ) ) ) );
