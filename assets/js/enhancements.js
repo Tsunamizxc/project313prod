@@ -723,9 +723,43 @@
 		observer.observe(document.body, { childList: true, subtree: true });
 	}
 
+	function bindMenuBackdrop() {
+		var menu = document.querySelector('[data-menu]');
+		var burger = document.querySelector('[data-burger]');
+		var backdrop = document.querySelector('[data-menu-backdrop]');
+		if (!menu || !backdrop) {
+			return;
+		}
+
+		function sync() {
+			var open = menu.classList.contains('header__drawer--open');
+			backdrop.classList.toggle('is-open', open);
+			backdrop.hidden = !open;
+			backdrop.setAttribute('aria-hidden', open ? 'false' : 'true');
+		}
+
+		backdrop.addEventListener('click', function () {
+			if (!menu.classList.contains('header__drawer--open')) {
+				return;
+			}
+			if (burger) {
+				burger.click();
+				return;
+			}
+			menu.classList.remove('header__drawer--open');
+			sync();
+		});
+
+		if (typeof MutationObserver !== 'undefined') {
+			new MutationObserver(sync).observe(menu, { attributes: true, attributeFilter: ['class'] });
+		}
+		sync();
+	}
+
 	function init() {
 		renderKids();
 		bindGroupBranchSwitch();
+		bindMenuBackdrop();
 		enhanceTeacherCards();
 		enhanceAwards();
 		enhanceReviews();

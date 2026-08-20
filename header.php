@@ -37,3 +37,4 @@ $org_name = p313_option( 'org_name', 'Project 313' );
  </div>
  <div class="header__drawer" data-menu><div class="container header__drawer-inner"><?php foreach ( $items as $slug => $label ) : ?><a class="<?php echo p313_nav_class( $slug, 'header__drawer-link' ); ?>" href="<?php echo esc_url( 'home' === $slug ? home_url( '/' ) : p313_page_url( $slug ) ); ?>" data-nav="<?php echo esc_attr( $slug ); ?>" data-menu-item><?php echo esc_html( $label ); ?></a><?php endforeach; ?><a class="header__drawer-phone" href="<?php echo esc_url( $phone_href ); ?>"><?php echo esc_html( $phone ); ?></a><button class="btn btn--secondary header__drawer-cta" type="button" data-open-form data-menu-item><?php echo esc_html( $cta_label ); ?></button></div></div>
 </header>
+<div class="header__backdrop" data-menu-backdrop hidden></div>

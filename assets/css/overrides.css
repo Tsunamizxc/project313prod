@@ -304,7 +304,39 @@ html.is-lock {
 }
 
 .group-page__empty {
-	color: rgba(0, 48, 135, 0.6);
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.8rem;
+	margin: 0;
+	padding: 3.2rem 3.2rem 3.6rem;
+	max-width: 52rem;
+	border-radius: 2rem;
+	border: 1px solid rgba(0, 48, 135, 0.1);
+	background:
+		linear-gradient(145deg, rgba(242, 247, 251, 0.95) 0%, rgba(217, 231, 240, 0.45) 100%);
+	color: rgba(0, 48, 135, 0.72);
+	font-family: var(--font-display);
+	font-size: 1.8rem;
+	font-weight: 300;
+	letter-spacing: -0.02em;
+	line-height: 1.45;
+}
+
+.group-page__empty::before {
+	content: "";
+	display: block;
+	width: 3.2rem;
+	height: 0.3rem;
+	border-radius: 999px;
+	background: rgba(0, 48, 135, 0.28);
+}
+
+@media (min-width: 769px) {
+	.group-page__empty {
+		padding: 4rem 4.4rem 4.4rem;
+		font-size: 2rem;
+	}
 }
 
 .card-slider {
@@ -835,34 +867,62 @@ a.kids-card--link .kids-card__more {
 	margin-top: 1.2rem;
 }
 
-/* Header: transparent when scrolled; gray glass under burger menu */
+/* Header scrolled: keep readable frosted background on desktop */
 .header--scrolled {
-	background: transparent;
-	border-bottom-color: transparent;
-	-webkit-backdrop-filter: none;
-	backdrop-filter: none;
+	border-bottom-color: var(--color-line-soft);
+	background: rgba(251, 252, 254, 0.92);
+	-webkit-backdrop-filter: blur(20px);
+	backdrop-filter: blur(20px);
 }
 
 .header--scrolled .header__inner {
 	background: transparent;
 }
 
+/* Mobile drawer: white panel, navy text */
 .header__drawer {
-	background: rgba(55, 62, 74, 0.55);
-	-webkit-backdrop-filter: blur(16px);
-	backdrop-filter: blur(16px);
+	background: #fff;
+	-webkit-backdrop-filter: none;
+	backdrop-filter: none;
 }
 
 .header__drawer--open {
-	background: rgba(45, 52, 64, 0.62);
-	border-top-color: rgba(255, 255, 255, 0.18);
+	background: #fff;
+	border-top-color: var(--color-line-soft);
 }
 
 .header__drawer-link,
 .header__drawer-phone {
-	color: rgba(255, 255, 255, 0.92);
+	color: var(--color-navy);
 }
 
 .header__drawer-link--active {
-	color: #fff;
+	color: var(--color-navy);
+}
+
+/* Gray overlay under fixed header while burger menu is open */
+.header__backdrop {
+	position: fixed;
+	inset: 0;
+	z-index: 40;
+	background: rgba(40, 48, 60, 0.45);
+	-webkit-backdrop-filter: blur(2px);
+	backdrop-filter: blur(2px);
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+	-webkit-transition: opacity 0.35s, visibility 0.35s;
+	transition: opacity 0.35s, visibility 0.35s;
+}
+
+.header__backdrop.is-open {
+	opacity: 1;
+	visibility: visible;
+	pointer-events: auto;
+}
+
+@media (min-width: 1281px) {
+	.header__backdrop {
+		display: none;
+	}
 }
