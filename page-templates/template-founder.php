@@ -39,8 +39,8 @@ if ( ! $facts ) {
  </div>
  <div class="founder__copy">
   <p class="founder__role"><?php echo esc_html( $role ); ?></p>
-  <?php if ( $exp ) : ?><div class="teacher-card__meta"><span class="teacher-card__meta-label">Опыт</span><p class="founder__exp"><?php echo esc_html( $exp ); ?></p></div><?php endif; ?>
-  <?php if ( $education ) : ?><div class="teacher-card__meta"><span class="teacher-card__meta-label">Образование</span><p><?php echo nl2br( esc_html( $education ) ); ?></p></div><?php endif; ?>
+  <?php if ( $exp ) : ?><div class="teacher-card__meta"><span class="teacher-card__meta-label">Опыт</span><p class="teacher-card__meta-text founder__exp"><?php echo esc_html( $exp ); ?></p></div><?php endif; ?>
+  <?php if ( $education ) : ?><div class="teacher-card__meta"><span class="teacher-card__meta-label">Образование</span><p class="teacher-card__meta-text"><?php echo nl2br( esc_html( $education ) ); ?></p></div><?php endif; ?>
   <?php if ( $page_bio ) : ?>
   <div class="founder__text founder__text--rich"><?php echo wp_kses_post( $page_bio ); ?></div>
   <?php else : ?>

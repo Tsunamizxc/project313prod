@@ -172,7 +172,7 @@ html.is-lock {
 }
 
 .footer__credit-label {
-	font-size: 1.2rem;
+	font-size: 1.4rem;
 	color: rgba(0, 48, 135, 0.5);
 	white-space: nowrap;
 }
@@ -548,7 +548,7 @@ html.is-lock {
 	margin: 0;
 	padding-top: 0.2rem;
 	color: rgba(0, 48, 135, 0.5);
-	font-size: 1.3rem;
+	font-size: 1.4rem;
 	line-height: 1.4;
 }
 
@@ -677,7 +677,7 @@ a.contacts__value:hover {
 .teacher-card__meta-label {
 	display: block;
 	margin-bottom: 0.4rem;
-	font-size: 1.1rem;
+	font-size: 1.4rem;
 	letter-spacing: 0.08em;
 	text-transform: uppercase;
 	color: rgba(0, 48, 135, 0.45);
@@ -753,6 +753,15 @@ a.contacts__value:hover {
 	display: none;
 }
 
+.founder__role {
+	font-size: 1.8rem;
+	letter-spacing: 0.08em;
+}
+
+.founder__text {
+	margin-top: 0;
+}
+
 .founder__text--rich,
 .founder__text p {
 	color: rgba(0, 48, 135, 0.75);
@@ -761,6 +770,20 @@ a.contacts__value:hover {
 
 .founder .teacher-card__meta {
 	margin: 1.2rem 0 0;
+	font-size: 1.6rem;
+	font-family: var(--font-display);
+}
+
+.founder .teacher-card__meta-label {
+	font-size: 1.8rem;
+}
+
+.founder .teacher-card__meta-text,
+.founder .founder__exp {
+	margin-top: 0;
+	font-size: 1.6rem;
+	font-family: var(--font-display);
+	font-weight: 300;
 }
 
 .founder__aside .founder__facts {
@@ -874,7 +897,7 @@ a.kids-card--link .kids-card__more {
 /* Awards meta */
 .awards-list__meta {
 	margin: 0.4rem 0 0;
-	font-size: 1.3rem;
+	font-size: 1.4rem;
 	color: rgba(0, 48, 135, 0.5);
 }
 
@@ -970,4 +993,86 @@ a.kids-card--link .kids-card__more {
 	.header__backdrop {
 		display: none !important;
 	}
+}
+
+/* Site-wide type scale: nothing smaller than 1.4rem */
+body {
+	font-size: 1.6rem;
+}
+
+.header__logo-sub,
+.header__link,
+.header__phone,
+.btn,
+.tag,
+.section-num__n,
+.section-num__label,
+.link-arrow,
+.footer__kicker,
+.footer__about,
+.footer__signup,
+.footer__col-title,
+.footer__bottom,
+.footer__credit-label,
+.form__label,
+.form__error,
+.form__note,
+.modal__kicker,
+.hero__badge-t,
+.hero__fact-l,
+.about__founder-label,
+.section-head__link,
+.service-card__price,
+.service-card__meta,
+.service-card__action,
+.schedule-teaser__meta,
+.schedule-teaser__book,
+.home-split__blog-meta,
+.review-card__role,
+.founder__fact-l,
+.teacher-card__exp,
+.teacher-card__role,
+.teacher-card__meta-label,
+.kids-card__num,
+.schedule-table__head,
+.schedule-table__day-m,
+.schedule-table__day-d,
+.schedule-table__btn,
+.awards-list__place,
+.awards-list__level,
+.awards-list__meta,
+.blog-card__meta,
+.blog-card__date,
+.article__back,
+.article__meta,
+.article__video-label,
+.event-card__meta,
+.event-card__more,
+.contacts__label,
+.contacts__social {
+	font-size: 1.4rem;
+}
+
+.footer__list,
+.footer__list a,
+.footer__list button,
+.form__input,
+.form__select,
+.form__textarea,
+.form__success-text,
+.modal__text,
+.service-card__text,
+.schedule-teaser__dir,
+.review-card__name,
+.kids-card__age,
+.kids-card__note,
+.blog-card__excerpt,
+.contacts__form-text,
+.contacts__value {
+	font-size: 1.6rem;
+}
+
+.founder__role,
+.founder .teacher-card__meta-label {
+	font-size: 1.8rem;
 }
