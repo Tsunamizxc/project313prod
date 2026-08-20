@@ -57,7 +57,8 @@ if [[ "$AHEAD" -gt 0 ]]; then
   exit 0
 fi
 
-DIRTY="$(git status --porcelain)"
+# Log file changes must not block auto-pull.
+DIRTY="$(git status --porcelain | grep -Ev '^.. scripts/logs/' || true)"
 STASHED=0
 if [[ -n "$DIRTY" ]]; then
   if [[ "$FORCE" != "1" ]]; then
