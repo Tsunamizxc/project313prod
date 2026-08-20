@@ -1028,10 +1028,33 @@
 		sync();
 	}
 
+	function bindToTop() {
+		var btn = document.querySelector('[data-to-top]');
+		if (!btn) {
+			return;
+		}
+
+		function sync() {
+			var show = window.pageYOffset > 400;
+			btn.classList.toggle('is-visible', show);
+			btn.setAttribute('aria-hidden', show ? 'false' : 'true');
+		}
+
+		btn.addEventListener('click', function () {
+			window.scrollTo({
+				top: 0,
+				behavior: 'smooth',
+			});
+		});
+		window.addEventListener('scroll', sync, { passive: true });
+		sync();
+	}
+
 	function init() {
 		renderKids();
 		bindGroupBranchSwitch();
 		bindMenuBackdrop();
+		bindToTop();
 		enhanceTeacherCards();
 		enhanceAwards();
 		enhanceReviews();
