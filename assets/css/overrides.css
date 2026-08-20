@@ -881,8 +881,6 @@ a.kids-card--link .kids-card__more {
 
 /* Mobile drawer: white panel, navy text */
 .header__drawer {
-	position: relative;
-	z-index: 2;
 	background: #fff;
 	-webkit-backdrop-filter: none;
 	backdrop-filter: none;
@@ -902,19 +900,26 @@ a.kids-card--link .kids-card__more {
 	color: var(--color-navy);
 }
 
-.header__inner {
-	position: relative;
-	z-index: 2;
+/* Keep header bar opaque while menu is open so it never looks gray */
+.header--menu-open {
+	background: #fff !important;
+	-webkit-backdrop-filter: none !important;
+	backdrop-filter: none !important;
 }
 
-/* Gray overlay under header bar + drawer; never above header__inner */
+.header--menu-open .header__inner {
+	background: #fff;
+}
+
+/* Overlay starts below the whole header (bar + drawer), not over header__inner */
 .header__backdrop {
 	position: fixed;
-	inset: 0;
-	z-index: 1;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	top: 0;
+	z-index: 40;
 	background: rgba(40, 48, 60, 0.45);
-	-webkit-backdrop-filter: blur(2px);
-	backdrop-filter: blur(2px);
 	opacity: 0;
 	visibility: hidden;
 	pointer-events: none;
@@ -928,13 +933,8 @@ a.kids-card--link .kids-card__more {
 	pointer-events: auto;
 }
 
-.header:has(.header__drawer--open),
-.header:has(.header__backdrop.is-open) {
-	background: #fff;
-}
-
 @media (min-width: 1281px) {
 	.header__backdrop {
-		display: none;
+		display: none !important;
 	}
 }

@@ -724,18 +724,30 @@
 	}
 
 	function bindMenuBackdrop() {
+		var header = document.querySelector('[data-header]');
 		var menu = document.querySelector('[data-menu]');
 		var burger = document.querySelector('[data-burger]');
 		var backdrop = document.querySelector('[data-menu-backdrop]');
-		if (!menu || !backdrop) {
+		if (!menu || !backdrop || !header) {
 			return;
+		}
+
+		function placeBackdrop() {
+			var rect = header.getBoundingClientRect();
+			backdrop.style.top = Math.max(0, Math.ceil(rect.bottom)) + 'px';
 		}
 
 		function sync() {
 			var open = menu.classList.contains('header__drawer--open');
+			header.classList.toggle('header--menu-open', open);
 			backdrop.classList.toggle('is-open', open);
 			backdrop.hidden = !open;
 			backdrop.setAttribute('aria-hidden', open ? 'false' : 'true');
+			if (open) {
+				placeBackdrop();
+			} else {
+				backdrop.style.top = '';
+			}
 		}
 
 		backdrop.addEventListener('click', function () {
@@ -750,8 +762,19 @@
 			sync();
 		});
 
+		window.addEventListener('resize', function () {
+			if (menu.classList.contains('header__drawer--open')) {
+				placeBackdrop();
+			}
+		});
+
 		if (typeof MutationObserver !== 'undefined') {
-			new MutationObserver(sync).observe(menu, { attributes: true, attributeFilter: ['class'] });
+			new MutationObserver(function () {
+				sync();
+				if (menu.classList.contains('header__drawer--open')) {
+					requestAnimationFrame(placeBackdrop);
+				}
+			}).observe(menu, { attributes: true, attributeFilter: ['class'] });
 		}
 		sync();
 	}
