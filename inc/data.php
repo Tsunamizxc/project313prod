@@ -138,21 +138,38 @@ function p313_get_frontend_data() {
 
 	$awards = array();
 	foreach ( p313_posts( 'p313_award' ) as $post ) {
+		$id      = $post->ID;
+		$title   = get_the_title( $id );
+		$contest = p313_field( 'contest', '', $id );
+		$result  = p313_field( 'result', '', $id );
+		$place   = p313_field( 'place', '', $id );
+		if ( ! $result && $place ) {
+			$result = $place;
+		}
 		$awards[] = array(
-			'year'  => (int) p313_field( 'year', 0, $post ),
-			'title' => get_the_title( $post ),
-			'place' => p313_field( 'place', '', $post ),
-			'level' => p313_field( 'level', '', $post ),
+			'year'    => (int) p313_field( 'year', 0, $id ),
+			'title'   => $contest ?: $title,
+			'contest' => $contest ?: $title,
+			'result'  => $result,
+			'age'     => p313_field( 'age', '', $id ),
+			'date'    => p313_field( 'date', '', $id ),
+			'qty'     => p313_field( 'qty', '', $id ),
+			'place'   => $place,
+			'level'   => p313_field( 'level', '', $id ),
 		);
 	}
 
 	$reviews = array();
 	foreach ( p313_posts( 'p313_review' ) as $post ) {
+		$id    = $post->ID;
+		$video = trim( (string) p313_field( 'video', '', $id ) );
 		$reviews[] = array(
-			'name'   => get_the_title( $post ),
-			'role'   => p313_field( 'role', '', $post ),
-			'text'   => p313_field( 'text', '', $post ),
-			'rating' => (int) p313_field( 'rating', 5, $post ),
+			'name'      => get_the_title( $id ),
+			'role'      => p313_field( 'role', '', $id ),
+			'text'      => p313_field( 'text', '', $id ),
+			'rating'    => (int) p313_field( 'rating', 5, $id ),
+			'video'     => $video,
+			'videoHtml' => $video ? p313_vk_video_embed( $video ) : '',
 		);
 	}
 
@@ -176,17 +193,40 @@ function p313_get_frontend_data() {
 
 	$gallery = array();
 	foreach ( p313_posts( 'p313_gallery' ) as $post ) {
-		$id = $post->ID;
-		$photo = p313_field( 'photo_id', '', $id );
-		$thumb = get_the_post_thumbnail_url( $id, 'large' );
-		$gallery[] = array(
-			'id'       => (string) $id,
-			'year'     => (int) p313_field( 'year', 0, $id ),
-			'cat'      => p313_field( 'category', '', $id ),
-			'ratio'    => p313_field( 'ratio', 'square', $id ),
-			'photo'    => $photo ?: '',
-			'photoUrl' => $thumb ?: ( $photo ? p313_unsplash( $photo, 600, 600 ) : '' ),
-		);
+		$id       = $post->ID;
+		$year     = (int) p313_field( 'year', 0, $id );
+		$cat      = p313_field( 'category', '', $id );
+		$ratio    = p313_field( 'ratio', 'square', $id );
+		$photo    = p313_field( 'photo_id', '', $id );
+		$photos   = p313_gallery_urls( p313_field( 'photos', array(), $id ), 'large' );
+		$thumb    = get_the_post_thumbnail_url( $id, 'large' );
+		$album    = get_the_title( $id );
+		$urls     = $photos;
+		if ( $thumb && ! in_array( $thumb, $urls, true ) ) {
+			array_unshift( $urls, $thumb );
+		}
+		if ( ! $urls && $photo ) {
+			$urls[] = p313_unsplash( $photo, 600, 600 );
+		}
+		if ( ! $urls ) {
+			continue;
+		}
+		$ratios = array( 'square', 'wide', 'tall' );
+		foreach ( $urls as $index => $url ) {
+			$item_ratio = $ratio;
+			if ( count( $urls ) > 1 && ( ! $ratio || 'square' === $ratio ) ) {
+				$item_ratio = $ratios[ $index % 3 ];
+			}
+			$gallery[] = array(
+				'id'       => (string) $id . '-' . $index,
+				'year'     => $year,
+				'cat'      => $cat,
+				'ratio'    => $item_ratio,
+				'photo'    => $photo ?: '',
+				'photoUrl' => $url,
+				'album'    => $album,
+			);
+		}
 	}
 
 	$faq = array();
@@ -252,19 +292,16 @@ function p313_get_frontend_data() {
 		}
 	}
 
-	$founder_facts = p313_option( 'founder_facts', array() );
-	$founder_facts_out = array();
-	if ( is_array( $founder_facts ) ) {
-		foreach ( $founder_facts as $row ) {
-			$founder_facts_out[] = array(
-				'n'     => $row['n'] ?? '',
-				'label' => $row['label'] ?? '',
-			);
-		}
+	$founder_page_id = p313_founder_page_id();
+	$founder_facts   = p313_normalize_founder_facts(
+		$founder_page_id ? p313_field( 'page_founder_facts', null, $founder_page_id ) : null
+	);
+	if ( ! $founder_facts ) {
+		$founder_facts = p313_normalize_founder_facts( p313_option( 'founder_facts', array() ) );
 	}
 
 	$founder_bio = p313_option( 'founder_bio', array() );
-	$bio_out = array();
+	$bio_out     = array();
 	if ( is_array( $founder_bio ) ) {
 		foreach ( $founder_bio as $row ) {
 			if ( ! empty( $row['paragraph'] ) ) {
@@ -272,6 +309,8 @@ function p313_get_frontend_data() {
 			}
 		}
 	}
+
+	$founder_photo = p313_founder_value( 'page_founder_photo', 'founder_photo', '' );
 
 	return array(
 		'homeUrl'      => home_url( '/' ),
@@ -316,15 +355,15 @@ function p313_get_frontend_data() {
 		'BLOG'         => $blog,
 		'TICKER'       => $ticker_out,
 		'FOUNDER'      => array(
-			'name'       => p313_option( 'founder_name', 'Анна Волкова' ),
-			'role'       => p313_option( 'founder_role', '' ),
-			'exp'        => p313_option( 'founder_exp', '' ),
-			'education'  => p313_option( 'founder_education', '' ),
-			'short'      => p313_option( 'founder_short', '' ),
+			'name'       => p313_founder_value( 'page_founder_title', 'founder_name', 'Анна Волкова' ),
+			'role'       => p313_founder_value( 'page_founder_role', 'founder_role', '' ),
+			'exp'        => p313_founder_value( 'page_founder_exp', 'founder_exp', '' ),
+			'education'  => p313_founder_value( 'page_founder_education', 'founder_education', '' ),
+			'short'      => p313_founder_value( 'page_founder_sub', 'founder_short', '' ),
 			'bio'        => $bio_out,
-			'facts'      => $founder_facts_out,
+			'facts'      => $founder_facts,
 			'moreUrl'    => p313_founder_more_url(),
-			'photoUrl'   => p313_img_url( p313_option( 'founder_photo' ), 'large' ) ?: p313_asset( 'assets/img/founder.webp' ),
+			'photoUrl'   => p313_img_url( $founder_photo, 'large' ) ?: p313_asset( 'assets/img/founder.webp' ),
 		),
 		'strings'      => array(
 			'formSuccess' => p313_option( 'form_success_text', 'Спасибо! Мы позвоним вам в течение дня и подберём удобное время для просмотра.' ),

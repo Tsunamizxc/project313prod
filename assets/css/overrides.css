@@ -84,7 +84,7 @@ html.is-lock {
 	display: -ms-grid;
 	display: grid;
 	grid-template-columns: 1fr;
-	max-width: 76.8rem;
+	max-width: min(110rem, 96vw);
 }
 
 [data-teacher-modal] .modal__media,
@@ -100,8 +100,8 @@ html.is-lock {
 @media (min-width: 769px) {
 	[data-teacher-modal] .modal__dialog:has(.modal__media),
 	[data-service-modal] .modal__dialog:has(.modal__media) {
-		-ms-grid-columns: 1fr 1fr;
-		grid-template-columns: 1fr 1fr;
+		-ms-grid-columns: 0.95fr 1.05fr;
+		grid-template-columns: 0.95fr 1.05fr;
 		max-height: 92vh;
 	}
 
@@ -244,15 +244,6 @@ html.is-lock {
 	height: 100%;
 }
 
-.kids-group-block {
-	margin-bottom: 4.8rem;
-}
-
-.kids-group-block .kids-card--link {
-	max-width: 36rem;
-	margin-bottom: 2.4rem;
-}
-
 .kids-members-grid {
 	margin-top: 0.8rem;
 }
@@ -264,20 +255,6 @@ html.is-lock {
 .teacher-card__img--empty {
 	min-height: 28.8rem;
 	background: var(--color-ice-30);
-}
-
-.kids-card__btn {
-	display: none;
-}
-
-a.kids-card--link {
-	display: block;
-	color: inherit;
-	text-decoration: none;
-}
-
-a.kids-card--link .teacher-card__body {
-	padding: 2rem;
 }
 
 .group-page__back {
@@ -745,4 +722,147 @@ a.contacts__value:hover {
 
 .founder .teacher-card__meta {
 	margin: 1.2rem 0 0;
+}
+
+/* Bigger detail modals */
+.modal__dialog {
+	max-width: 64rem;
+}
+
+@media (min-width: 769px) {
+	.modal--detail .modal__dialog,
+	[data-teacher-modal] .modal__dialog:has(.modal__media),
+	[data-service-modal] .modal__dialog:has(.modal__media) {
+		max-width: min(110rem, 96vw);
+	}
+
+	[data-teacher-modal] .modal__dialog:has(.modal__media),
+	[data-service-modal] .modal__dialog:has(.modal__media) {
+		-ms-grid-columns: 0.95fr 1.05fr;
+		grid-template-columns: 0.95fr 1.05fr;
+	}
+}
+
+/* Teachers: 3 columns, taller photos */
+@media (min-width: 1025px) {
+	.teachers-grid {
+		-ms-grid-columns: (1fr)[3];
+		grid-template-columns: repeat(3, 1fr);
+	}
+}
+
+[data-teachers-grid] .teacher-card__img {
+	height: 45rem;
+}
+
+/* Groups: card links, not photo tiles */
+a.kids-card--link {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	color: inherit;
+	text-decoration: none;
+}
+
+a.kids-card--link .kids-card__more {
+	margin-top: auto;
+	padding-top: 2rem;
+}
+
+.kids-card__btn {
+	display: none;
+}
+
+/* Service card slider layout fix */
+.service-card__media {
+	position: relative;
+	overflow: hidden;
+	min-height: 20.8rem;
+}
+
+.service-card__media .card-slider,
+.service-card__media .card-slider__viewport {
+	height: 20.8rem;
+}
+
+.service-card__media .card-slider__img,
+.service-card__media .service-card__img {
+	display: none;
+	width: 100%;
+	height: 20.8rem;
+	-o-object-fit: cover;
+	object-fit: cover;
+}
+
+.service-card__media .card-slider__img.is-active,
+.service-card__media > .service-card__img {
+	display: block;
+}
+
+.service-card__media .service-card__price {
+	position: absolute;
+	z-index: 3;
+	right: 1.2rem;
+	top: 1.2rem;
+}
+
+/* Awards meta */
+.awards-list__meta {
+	margin: 0.4rem 0 0;
+	font-size: 1.3rem;
+	color: rgba(0, 48, 135, 0.5);
+}
+
+/* Reviews with VK video */
+.review-card__video {
+	position: relative;
+	width: calc(100% + 5.6rem);
+	margin: -2.8rem -2.8rem 2rem;
+	aspect-ratio: 16 / 9;
+	overflow: hidden;
+	background: var(--color-navy);
+}
+
+.review-card__video iframe {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	border: 0;
+}
+
+.review-card--video .review-card__text {
+	margin-top: 1.2rem;
+}
+
+/* Header: transparent when scrolled; gray glass under burger menu */
+.header--scrolled {
+	background: transparent;
+	border-bottom-color: transparent;
+	-webkit-backdrop-filter: none;
+	backdrop-filter: none;
+}
+
+.header--scrolled .header__inner {
+	background: transparent;
+}
+
+.header__drawer {
+	background: rgba(55, 62, 74, 0.55);
+	-webkit-backdrop-filter: blur(16px);
+	backdrop-filter: blur(16px);
+}
+
+.header__drawer--open {
+	background: rgba(45, 52, 64, 0.62);
+	border-top-color: rgba(255, 255, 255, 0.18);
+}
+
+.header__drawer-link,
+.header__drawer-phone {
+	color: rgba(255, 255, 255, 0.92);
+}
+
+.header__drawer-link--active {
+	color: #fff;
 }

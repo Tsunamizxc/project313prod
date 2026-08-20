@@ -212,63 +212,30 @@
 		if (!groups.length) {
 			return;
 		}
-		wrap.innerHTML = groups
-			.map(function (group) {
-				var href = group.url || '#';
-				var photo = group.photoUrl
-					? '<img class="teacher-card__img" src="' +
-						esc(group.photoUrl) +
-						'" alt="' +
+		wrap.innerHTML =
+			'<div class="kids-grid">' +
+			groups
+				.map(function (group, index) {
+					var href = group.url || '#';
+					var num = String(index + 1).padStart(2, '0');
+					return (
+						'<a class="card kids-card kids-card--link reveal" href="' +
+						esc(href) +
+						'">' +
+						'<span class="kids-card__num">«' +
+						num +
+						'»</span>' +
+						'<h3 class="kids-card__name">' +
 						esc(group.name) +
-						'" loading="lazy">'
-					: '<div class="teacher-card__img teacher-card__img--empty"></div>';
-				var members = Array.isArray(group.members) ? group.members : [];
-				var membersHtml = members.length
-					? '<div class="teachers-grid kids-members-grid">' +
-						members
-							.map(function (member) {
-								var mphoto = member.photoUrl
-									? '<img class="teacher-card__img" src="' +
-										esc(member.photoUrl) +
-										'" alt="' +
-										esc(member.name) +
-										'" loading="lazy">'
-									: '<div class="teacher-card__img teacher-card__img--empty"></div>';
-								return (
-									'<article class="card teacher-card">' +
-									'<div style="overflow: hidden;">' +
-									mphoto +
-									'</div>' +
-									'<div class="teacher-card__body"><h3 class="teacher-card__name">' +
-									esc(member.name) +
-									'</h3></div></article>'
-								);
-							})
-							.join('') +
-						'</div>'
-					: '';
-				return (
-					'<section class="kids-group-block">' +
-					'<a class="card card--hover teacher-card kids-card--link reveal" href="' +
-					esc(href) +
-					'">' +
-					'<div style="overflow: hidden;">' +
-					photo +
-					'</div>' +
-					'<div class="teacher-card__body">' +
-					(group.age ? '<p class="teacher-card__exp">' + esc(group.age) + '</p>' : '') +
-					'<h3 class="teacher-card__name">' +
-					esc(group.name) +
-					'</h3>' +
-					'<p class="teacher-card__role">' +
-					esc(group.note || '') +
-					'</p>' +
-					'</div></a>' +
-					membersHtml +
-					'</section>'
-				);
-			})
-			.join('');
+						'</h3>' +
+						(group.age ? '<p class="kids-card__age">' + esc(group.age) + '</p>' : '') +
+						(group.note ? '<p class="kids-card__note">' + esc(group.note) + '</p>' : '') +
+						'<span class="link-arrow kids-card__more">Открыть группу</span>' +
+						'</a>'
+					);
+				})
+				.join('') +
+			'</div>';
 	}
 
 	function mediaUrl(value, w, h) {
@@ -514,16 +481,22 @@
 			}
 			list.innerHTML = rows
 				.map(function (item) {
+					var contest = item.contest || item.title || '';
+					var result = item.result || item.place || '';
+					var meta = [item.age, item.date, item.qty ? 'кол-во: ' + item.qty : '', item.level]
+						.filter(Boolean)
+						.join(' · ');
 					return (
 						'<div class="awards-list__row reveal">' +
 						'<span class="awards-list__year">' +
 						esc(item.year) +
 						'</span><div><p class="awards-list__title">' +
-						esc(item.title) +
+						esc(contest) +
 						'</p><p class="awards-list__place">' +
-						esc(item.place) +
-						'</p></div><span class="awards-list__level">' +
-						esc(item.level) +
+						esc(result) +
+						(meta ? '</p><p class="awards-list__meta">' + esc(meta) + '</p>' : '</p>') +
+						'</div><span class="awards-list__level">' +
+						esc(item.qty || item.level || '') +
 						'</span></div>'
 					);
 				})
@@ -572,6 +545,80 @@
 			container.appendChild(wrap);
 		}
 		container.setAttribute('data-years-ready', '1');
+	}
+
+	function vkVideoHtml(item) {
+		if (item && item.videoHtml) {
+			return item.videoHtml;
+		}
+		var raw = item && item.video ? String(item.video) : '';
+		if (!raw) {
+			return '';
+		}
+		var oid = '';
+		var id = '';
+		var ext = raw.match(/video_ext\.php\?([^#\s"']+)/i);
+		var pair = raw.match(/(?:vk\.com|vkvideo\.ru)\/video(-?\d+)_(\d+)/i);
+		if (ext && ext[1]) {
+			ext[1].split('&').forEach(function (part) {
+				var bits = part.split('=');
+				if (bits[0] === 'oid') {
+					oid = decodeURIComponent(bits[1] || '');
+				}
+				if (bits[0] === 'id') {
+					id = decodeURIComponent(bits[1] || '');
+				}
+			});
+		} else if (pair) {
+			oid = pair[1];
+			id = pair[2];
+		}
+		if (!oid || !id) {
+			return '';
+		}
+		return (
+			'<div class="review-card__video"><iframe src="https://vk.com/video_ext.php?oid=' +
+			esc(oid) +
+			'&id=' +
+			esc(id) +
+			'&hd=2" title="Видео VK" allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;" allowfullscreen loading="lazy"></iframe></div>'
+		);
+	}
+
+	function reviewCardHtml(item) {
+		var stars = '★'.repeat(item.rating || 0);
+		var video = vkVideoHtml(item);
+		return (
+			'<article class="card review-card reveal' +
+			(video ? ' review-card--video' : '') +
+			'">' +
+			(video ? video : '') +
+			'<div class="review-card__stars" aria-label="' +
+			esc(item.rating) +
+			' из 5">' +
+			stars +
+			'</div>' +
+			(item.text ? '<p class="review-card__text">«' + esc(item.text) + '»</p>' : '') +
+			'<div class="hairline" style="width: 40%; margin-top: 1.5rem;"></div>' +
+			'<p class="review-card__name">' +
+			esc(item.name) +
+			'</p>' +
+			'<p class="review-card__role">' +
+			esc(item.role) +
+			'</p></article>'
+		);
+	}
+
+	function enhanceReviews() {
+		var reviews = Array.isArray(data.REVIEWS) ? data.REVIEWS : [];
+		var home = document.querySelector('[data-reviews-home]');
+		var page = document.querySelector('[data-reviews-page]');
+		if (home) {
+			home.innerHTML = reviews.map(reviewCardHtml).join('');
+		}
+		if (page) {
+			page.innerHTML = reviews.map(reviewCardHtml).join('');
+		}
 	}
 
 	function observe(target, callback) {
@@ -681,6 +728,7 @@
 		bindGroupBranchSwitch();
 		enhanceTeacherCards();
 		enhanceAwards();
+		enhanceReviews();
 		enhanceGalleryYears();
 		enhanceServiceGrid(document.querySelector('[data-services-home]'));
 		enhanceServiceGrid(document.querySelector('[data-services-page]'));

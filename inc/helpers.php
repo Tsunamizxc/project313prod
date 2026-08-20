@@ -107,6 +107,138 @@ function p313_founder_more_url() {
 }
 
 /**
+ * Founder page ID by path/template.
+ *
+ * @return int
+ */
+function p313_founder_page_id() {
+	$page = get_page_by_path( 'founder' );
+	if ( $page ) {
+		return (int) $page->ID;
+	}
+	$pages = get_posts(
+		array(
+			'post_type'      => 'page',
+			'posts_per_page' => 1,
+			'post_status'    => 'publish',
+			'fields'         => 'ids',
+			'meta_key'       => '_wp_page_template',
+			'meta_value'     => 'page-templates/template-founder.php',
+		)
+	);
+	return $pages ? (int) $pages[0] : 0;
+}
+
+/**
+ * Founder field: page value first, then options.
+ *
+ * @param string $page_key   Page field name.
+ * @param string $option_key Option field name.
+ * @param mixed  $default    Default.
+ * @return mixed
+ */
+function p313_founder_value( $page_key, $option_key, $default = '' ) {
+	$page_id = p313_founder_page_id();
+	if ( $page_id && function_exists( 'get_field' ) ) {
+		$value = get_field( $page_key, $page_id );
+		if ( ! ( $value === null || $value === false || $value === '' || ( is_array( $value ) && ! $value ) ) ) {
+			return $value;
+		}
+	}
+	return p313_option( $option_key, $default );
+}
+
+/**
+ * Normalize founder facts repeater.
+ *
+ * @param mixed $rows Raw repeater.
+ * @return array<int, array{n:string,label:string}>
+ */
+function p313_normalize_founder_facts( $rows ) {
+	$out = array();
+	if ( ! is_array( $rows ) ) {
+		return $out;
+	}
+	foreach ( $rows as $row ) {
+		$n     = trim( (string) ( $row['n'] ?? '' ) );
+		$label = trim( (string) ( $row['label'] ?? '' ) );
+		if ( '' === $n && '' === $label ) {
+			continue;
+		}
+		$out[] = array(
+			'n'     => $n,
+			'label' => $label,
+		);
+	}
+	return $out;
+}
+
+/**
+ * Build VK video iframe from URL or embed code.
+ *
+ * @param string $raw URL or iframe HTML.
+ * @return string Safe HTML or empty.
+ */
+function p313_vk_video_embed( $raw ) {
+	$raw = trim( (string) $raw );
+	if ( '' === $raw ) {
+		return '';
+	}
+
+	if ( false !== stripos( $raw, '<iframe' ) ) {
+		return wp_kses(
+			$raw,
+			array(
+				'iframe' => array(
+					'src'             => true,
+					'width'           => true,
+					'height'          => true,
+					'allow'           => true,
+					'allowfullscreen' => true,
+					'frameborder'     => true,
+					'style'           => true,
+					'class'           => true,
+					'title'           => true,
+					'loading'         => true,
+				),
+			)
+		);
+	}
+
+	$oid = '';
+	$id  = '';
+	if ( preg_match( '/video_ext\.php\?([^#\s"\']+)/i', $raw, $m ) ) {
+		parse_str( html_entity_decode( $m[1] ), $query );
+		$oid = isset( $query['oid'] ) ? (string) $query['oid'] : '';
+		$id  = isset( $query['id'] ) ? (string) $query['id'] : '';
+	} elseif ( preg_match( '/(?:vk\.com|vkvideo\.ru)\/video(-?\d+)_(\d+)/i', $raw, $m ) ) {
+		$oid = $m[1];
+		$id  = $m[2];
+	} elseif ( preg_match( '/oid=(-?\d+).*?[?&]id=(\d+)/i', $raw, $m ) ) {
+		$oid = $m[1];
+		$id  = $m[2];
+	}
+
+	if ( '' === $oid || '' === $id ) {
+		return '';
+	}
+
+	$src = add_query_arg(
+		array(
+			'oid' => $oid,
+			'id'  => $id,
+			'hd'  => 2,
+		),
+		'https://vk.com/video_ext.php'
+	);
+
+	return sprintf(
+		'<div class="review-card__video"><iframe src="%s" title="Видео VK" allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;" allowfullscreen loading="lazy"></iframe></div>',
+		esc_url( $src )
+	);
+}
+
+/**
  * Repeater row label (supports label / name / title).
  *
  * @param mixed $row Row array or string.

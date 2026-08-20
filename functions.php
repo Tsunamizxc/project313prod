@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'P313_VERSION', '1.4.0' );
+define( 'P313_VERSION', '1.5.0' );
 define( 'P313_DIR', get_template_directory() );
 define( 'P313_URI', get_template_directory_uri() );
 

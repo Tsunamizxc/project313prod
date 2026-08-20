@@ -9,11 +9,15 @@ $head = p313_page_head_args(
 		'sub'   => p313_option( 'founder_short', 'Художественный руководитель Project 313.' ),
 	)
 );
-$photo      = p313_img_url( p313_option( 'founder_photo' ), 'large' ) ?: p313_asset( 'assets/img/founder.webp' );
-$role       = p313_option( 'founder_role', 'Художественный руководитель Project 313' );
-$exp        = p313_option( 'founder_exp', '15 лет' );
-$education  = p313_option( 'founder_education', '' );
-$page_bio   = p313_field( 'page_founder_bio', '' );
+$photo     = p313_img_url( p313_founder_value( 'page_founder_photo', 'founder_photo', '' ), 'large' ) ?: p313_asset( 'assets/img/founder.webp' );
+$role      = p313_founder_value( 'page_founder_role', 'founder_role', 'Художественный руководитель Project 313' );
+$exp       = p313_founder_value( 'page_founder_exp', 'founder_exp', '15 лет' );
+$education = p313_founder_value( 'page_founder_education', 'founder_education', '' );
+$page_bio  = p313_field( 'page_founder_bio', '' );
+$facts     = p313_normalize_founder_facts( p313_field( 'page_founder_facts', null ) );
+if ( ! $facts ) {
+	$facts = p313_normalize_founder_facts( p313_option( 'founder_facts', array() ) );
+}
 ?>
 <main class="main"><?php get_template_part( 'template-parts/page-head', null, $head ); ?>
 <section class="section section--top-sm"><div class="container"><div class="founder">
@@ -27,7 +31,18 @@ $page_bio   = p313_field( 'page_founder_bio', '' );
   <?php else : ?>
   <div class="founder__text" data-founder-bio></div>
   <?php endif; ?>
+  <?php if ( $facts ) : ?>
+  <div class="founder__facts">
+   <?php foreach ( $facts as $fact ) : ?>
+   <div class="founder__fact">
+    <p class="founder__fact-n"><?php echo esc_html( $fact['n'] ); ?></p>
+    <p class="founder__fact-l"><?php echo esc_html( $fact['label'] ); ?></p>
+   </div>
+   <?php endforeach; ?>
+  </div>
+  <?php else : ?>
   <div class="founder__facts" data-founder-facts></div>
+  <?php endif; ?>
   <div class="founder__actions"><button class="btn btn--primary" type="button" data-open-form><?php echo esc_html( p313_option( 'cta_label', 'Записаться' ) ); ?></button></div>
  </div>
 </div></div></section>

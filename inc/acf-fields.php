@@ -387,18 +387,52 @@ add_action(
 				'Награда',
 				array(
 					$field( 'award_year', 'Год', 'year', 'select', array( 'choices' => p313_year_choices(), 'required' => 1, 'instructions' => 'Год используется в таблице и в фильтре на странице наград.' ) ),
-					$field( 'award_place', 'Место', 'place' ),
-					$field( 'award_level', 'Уровень', 'level' ),
+					$field( 'award_result', 'Результат', 'result', 'text', array( 'instructions' => 'Например: Гран-при, Лауреат I степени, Диплом.' ) ),
+					$field( 'award_contest', 'Конкурс', 'contest', 'text', array( 'instructions' => 'Если пусто — берётся заголовок записи.' ) ),
+					$field( 'award_age', 'Возраст', 'age' ),
+					$field( 'award_date', 'Дата', 'date' ),
+					$field( 'award_qty', 'Кол-во', 'qty' ),
+					$field( 'award_place', 'Место (устаревшее)', 'place', 'text', array( 'instructions' => 'Старое поле. Лучше заполняйте «Результат».' ) ),
+					$field( 'award_level', 'Уровень (устаревшее)', 'level', 'text', array( 'instructions' => 'Старое поле, можно оставить пустым.' ) ),
 				),
 			),
-			'p313_review' => array( 'Отзыв', array( $field( 'review_role', 'Автор', 'role' ), $field( 'review_rating', 'Оценка', 'rating', 'number', array( 'min' => 1, 'max' => 5 ) ), $field( 'review_text', 'Текст', 'text', 'textarea', array( 'rows' => 4 ) ) ) ),
+			'p313_review' => array(
+				'Отзыв',
+				array(
+					$field( 'review_role', 'Автор / подпись', 'role' ),
+					$field( 'review_rating', 'Оценка', 'rating', 'number', array( 'min' => 1, 'max' => 5 ) ),
+					$field( 'review_text', 'Текст', 'text', 'textarea', array( 'rows' => 4 ) ),
+					$field(
+						'review_video',
+						'Видео VK',
+						'video',
+						'text',
+						array(
+							'instructions' => 'Ссылка на видео VK (vk.com/video… или vkvideo.ru/…) либо код iframe. На сайте появится встроенный плеер.',
+						)
+					),
+				),
+			),
 			'p313_event' => array( 'Мероприятие', array( $field( 'event_date_label', 'Дата', 'date_label' ), $field( 'event_time', 'Время', 'time' ), $field( 'event_place', 'Место', 'place' ), $field( 'event_photo_id', 'ID фото Unsplash', 'photo_id' ), $field( 'event_excerpt', 'Краткое описание', 'excerpt' ) ) ),
 			'p313_gallery' => array(
-				'Фото галереи',
+				'Альбом галереи',
 				array(
 					$field( 'gallery_year', 'Год', 'year', 'select', array( 'choices' => p313_year_choices(), 'required' => 1, 'instructions' => 'Тот же список лет, что и в фильтре на сайте (до 2016).' ) ),
 					$field( 'gallery_category', 'Категория', 'category', 'select', array( 'choices' => p313_gallery_category_choices(), 'required' => 1, 'instructions' => 'Категории задаются в Project 313 → Галерея фильтры.' ) ),
-					$field( 'gallery_photo_id', 'ID фото Unsplash', 'photo_id' ),
+					$field(
+						'gallery_photos',
+						'Фотографии',
+						'photos',
+						'gallery',
+						array(
+							'return_format' => 'id',
+							'preview_size'  => 'medium',
+							'insert'        => 'append',
+							'library'       => 'all',
+							'instructions'  => 'Можно загрузить сразу 20–30+ фото в одно событие (например «Отчётный концерт 2026»).',
+						)
+					),
+					$field( 'gallery_photo_id', 'ID фото Unsplash', 'photo_id', 'text', array( 'instructions' => 'Запасной вариант, если нет загруженных фото.' ) ),
 					$field( 'gallery_ratio', 'Формат', 'ratio', 'select', array( 'choices' => array( 'tall' => 'Вертикальный', 'wide' => 'Горизонтальный', 'square' => 'Квадрат' ) ) ),
 				),
 			),
@@ -512,7 +546,25 @@ add_action(
 				$fields[] = $field( 'page_contacts_hours_label', 'Подпись часов работы', 'page_contacts_hours_label' );
 			}
 			if ( 'page_founder' === $config[0] ) {
+				$fields[] = $field( 'page_founder_photo', 'Фото руководителя', 'page_founder_photo', 'image', array( 'return_format' => 'id', 'preview_size' => 'medium', 'instructions' => 'Главное фото на странице биографии. Сохраняется также в общих настройках.' ) );
+				$fields[] = $field( 'page_founder_role', 'Роль', 'page_founder_role' );
+				$fields[] = $field( 'page_founder_exp', 'Опыт', 'page_founder_exp' );
+				$fields[] = $field( 'page_founder_education', 'Образование', 'page_founder_education', 'textarea', array( 'rows' => 3 ) );
 				$fields[] = $field( 'page_founder_bio', 'Биография на странице', 'page_founder_bio', 'wysiwyg', array( 'tabs' => 'visual', 'toolbar' => 'full', 'media_upload' => 0, 'instructions' => 'Если заполнено, заменяет абзацы биографии из настроек «Руководитель».' ) );
+				$fields[] = $repeater(
+					'page_founder_facts',
+					'Цифры / факты',
+					'page_founder_facts',
+					array(
+						$field( 'page_founder_fact_n', 'Число', 'n' ),
+						$field( 'page_founder_fact_label', 'Подпись', 'label' ),
+					),
+					array(
+						'layout'       => 'table',
+						'button_label' => 'Добавить факт',
+						'instructions' => 'Редактируемые цифры в карточке биографии (например 11+, 300+, 58+).',
+					)
+				);
 			}
 			$add(
 				$config[0],
@@ -554,4 +606,97 @@ add_filter(
 		$field['choices'] = p313_service_age_choices();
 		return $field;
 	}
+);
+
+/**
+ * Keep founder page fields in sync with Project 313 → Руководитель options.
+ */
+add_action(
+	'acf/save_post',
+	function ( $post_id ) {
+		if ( ! is_numeric( $post_id ) || 'page' !== get_post_type( $post_id ) ) {
+			return;
+		}
+		$template = get_page_template_slug( (int) $post_id );
+		if ( ! in_array( $template, array( 'page-templates/template-founder.php', 'template-founder.php' ), true ) ) {
+			return;
+		}
+		if ( ! function_exists( 'update_field' ) || ! function_exists( 'get_field' ) ) {
+			return;
+		}
+
+		$title = trim( (string) get_field( 'page_founder_title', $post_id ) );
+		if ( $title ) {
+			update_field( 'founder_name', $title, 'option' );
+		}
+		$sub = trim( (string) get_field( 'page_founder_sub', $post_id ) );
+		if ( $sub ) {
+			update_field( 'founder_short', $sub, 'option' );
+		}
+
+		$map = array(
+			'page_founder_photo'     => 'founder_photo',
+			'page_founder_role'      => 'founder_role',
+			'page_founder_exp'       => 'founder_exp',
+			'page_founder_education' => 'founder_education',
+		);
+		foreach ( $map as $page_key => $option_key ) {
+			$value = get_field( $page_key, $post_id );
+			if ( $value === null || $value === false || $value === '' ) {
+				continue;
+			}
+			update_field( $option_key, $value, 'option' );
+		}
+
+		$facts = get_field( 'page_founder_facts', $post_id );
+		if ( is_array( $facts ) ) {
+			$clean = array();
+			foreach ( $facts as $row ) {
+				$n     = trim( (string) ( $row['n'] ?? '' ) );
+				$label = trim( (string) ( $row['label'] ?? '' ) );
+				if ( '' === $n && '' === $label ) {
+					continue;
+				}
+				$clean[] = array(
+					'n'     => $n,
+					'label' => $label,
+				);
+			}
+			if ( $clean ) {
+				update_field( 'founder_facts', $clean, 'option' );
+			}
+		}
+	},
+	20
+);
+
+/**
+ * Prefill founder page fields from options when empty.
+ */
+add_filter(
+	'acf/load_value',
+	function ( $value, $post_id, $field ) {
+		if ( ! is_numeric( $post_id ) || empty( $field['name'] ) ) {
+			return $value;
+		}
+		$name = $field['name'];
+		$map  = array(
+			'page_founder_photo'     => 'founder_photo',
+			'page_founder_role'      => 'founder_role',
+			'page_founder_exp'       => 'founder_exp',
+			'page_founder_education' => 'founder_education',
+			'page_founder_facts'     => 'founder_facts',
+			'page_founder_title'     => 'founder_name',
+			'page_founder_sub'       => 'founder_short',
+		);
+		if ( ! isset( $map[ $name ] ) ) {
+			return $value;
+		}
+		if ( $value !== null && $value !== false && $value !== '' && ! ( is_array( $value ) && ! $value ) ) {
+			return $value;
+		}
+		return p313_option( $map[ $name ], $value );
+	},
+	10,
+	3
 );

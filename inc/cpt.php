@@ -63,7 +63,7 @@ add_action(
 			),
 			'p313_gallery'  => array(
 				'label'     => 'Галерея',
-				'singular'  => 'Фото',
+				'singular'  => 'Событие / альбом',
 				'menu_icon' => 'dashicons-format-gallery',
 				'supports'  => array( 'title', 'thumbnail', 'page-attributes' ),
 			),
