@@ -796,6 +796,12 @@ a.kids-card--link {
 	text-decoration: none;
 }
 
+.kids-card__note,
+[data-kids-grid] .kids-members-grid,
+[data-kids-grid] .teacher-card {
+	display: none !important;
+}
+
 a.kids-card--link .kids-card__more {
 	margin-top: auto;
 	padding-top: 2rem;

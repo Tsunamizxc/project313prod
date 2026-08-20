@@ -13,7 +13,8 @@ $members_title = p313_field( 'members_title', 'Участницы', $id );
 $head          = array(
 	'label' => 'группа',
 	'title' => $title,
-	'sub'   => trim( implode( ' · ', array_filter( array( $age, $note ) ) ) ),
+	'sub'   => $age,
+	'text'  => $note,
 );
 ?>
 <main class="main"><?php get_template_part( 'template-parts/page-head', null, $head ); ?>

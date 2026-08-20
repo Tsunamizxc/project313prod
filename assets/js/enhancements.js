@@ -229,7 +229,6 @@
 						esc(group.name) +
 						'</h3>' +
 						(group.age ? '<p class="kids-card__age">' + esc(group.age) + '</p>' : '') +
-						(group.note ? '<p class="kids-card__note">' + esc(group.note) + '</p>' : '') +
 						'<span class="link-arrow kids-card__more">Открыть группу</span>' +
 						'</a>'
 					);

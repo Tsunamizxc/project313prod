@@ -101,6 +101,27 @@ function p313_service_age_choices() {
 	return $out;
 }
 
+/**
+ * Published kids groups for service select.
+ *
+ * @return array<string, string>
+ */
+function p313_kids_group_choices() {
+	$out   = array();
+	$posts = get_posts(
+		array(
+			'post_type'      => 'p313_kids',
+			'posts_per_page' => -1,
+			'post_status'    => 'publish',
+			'orderby'        => array( 'menu_order' => 'ASC', 'title' => 'ASC' ),
+		)
+	);
+	foreach ( $posts as $post ) {
+		$out[ (string) $post->ID ] = get_the_title( $post );
+	}
+	return $out;
+}
+
 function p313_founder_more_url() {
 	$url = trim( (string) p313_option( 'founder_more_url', '' ) );
 	return $url ? $url : 'https://project313.ru/founder/';

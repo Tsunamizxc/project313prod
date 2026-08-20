@@ -245,8 +245,18 @@ add_action(
 					$field( 'service_key', 'Ключ', 'service_key' ),
 					$field( 'service_price', 'Стоимость', 'price' ),
 					$field( 'service_format', 'Формат на странице услуг', 'format', 'select', array( 'choices' => array( 'group' => 'Групповая', 'individual' => 'Индивидуальная' ), 'required' => 1, 'instructions' => 'По этому полю услуга попадает в фильтр «Групповые / Индивидуальные».' ) ),
-					$field( 'service_age_label', 'Возраст (подпись на карточке)', 'age_label' ),
-					$field( 'service_age_group', 'Возрастная группа (фильтр)', 'age_group', 'select', array( 'choices' => p313_service_age_choices(), 'allow_null' => 1, 'instructions' => 'Список берётся из Project 313 → Возраста услуг.' ) ),
+					$field(
+						'service_kids_group',
+						'Группа',
+						'kids_group',
+						'select',
+						array(
+							'choices'      => p313_kids_group_choices(),
+							'allow_null'   => 1,
+							'ui'           => 1,
+							'instructions' => 'Список берётся из раздела «Группы». На карточке услуги показывается название выбранной группы.',
+						)
+					),
 					$field( 'service_duration', 'Длительность', 'duration' ),
 					$field( 'service_photos', 'Фотографии', 'photos', 'gallery', array( 'return_format' => 'id', 'preview_size' => 'medium', 'insert' => 'append', 'library' => 'all', 'instructions' => 'Можно загрузить несколько фото — в карточке услуги появится слайдер.' ) ),
 					$field( 'service_photo_id', 'ID фото Unsplash', 'photo_id', 'text', array( 'instructions' => 'Запасной вариант, если нет загруженных фото.' ) ),
@@ -601,9 +611,9 @@ add_filter(
 	}
 );
 add_filter(
-	'acf/load_field/key=field_p313_service_age_group',
+	'acf/load_field/key=field_p313_service_kids_group',
 	function ( $field ) {
-		$field['choices'] = p313_service_age_choices();
+		$field['choices'] = p313_kids_group_choices();
 		return $field;
 	}
 );

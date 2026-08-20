@@ -31,12 +31,16 @@ function p313_get_frontend_data() {
 		if ( ! $photos && $photo ) {
 			$photos[] = p313_unsplash( $photo, 640, 420 );
 		}
-		$services[] = array(
+		$group_id    = (int) p313_field( 'kids_group', 0, $id );
+		$group_title = $group_id ? p313_post_title( $group_id ) : '';
+		$age_label   = $group_title ?: p313_field( 'age_label', '', $id );
+		$age_group   = $group_id ? (string) $group_id : (string) p313_field( 'age_group', '', $id );
+		$services[]  = array(
 			'id'        => p313_field( 'service_key', (string) $id, $id ),
 			'title'     => get_the_title( $id ),
 			'price'     => p313_field( 'price', '', $id ),
-			'age'       => p313_field( 'age_label', '', $id ),
-			'ageGroup'  => p313_field( 'age_group', '', $id ),
+			'age'       => $age_label,
+			'ageGroup'  => $age_group,
 			'format'    => p313_field( 'format', 'group', $id ),
 			'duration'  => p313_field( 'duration', '', $id ),
 			'photo'     => $photo ?: '',
@@ -72,33 +76,14 @@ function p313_get_frontend_data() {
 
 	$kids = array();
 	foreach ( p313_posts( 'p313_kids' ) as $post ) {
-		$id        = $post->ID;
-		$photo_url = p313_img_url( p313_field( 'photo', '', $id ), 'p313-teacher' ) ?: get_the_post_thumbnail_url( $id, 'p313-teacher' );
-		$members   = array();
-		$rows      = p313_field( 'members', array(), $id );
-		if ( is_array( $rows ) ) {
-			foreach ( $rows as $row ) {
-				$name = trim( (string) ( $row['name'] ?? '' ) );
-				$murl = p313_img_url( $row['photo'] ?? '', 'p313-teacher' );
-				if ( ! $name && ! $murl ) {
-					continue;
-				}
-				$members[] = array(
-					'name'     => $name,
-					'photoUrl' => $murl,
-					'branch'   => (string) ( $row['branch'] ?? '' ),
-				);
-			}
-		}
+		$id = $post->ID;
 		$kids[] = array(
-			'id'       => (string) $id,
-			'name'     => get_the_title( $id ),
-			'age'      => p313_field( 'age', '', $id ),
-			'note'     => p313_field( 'note', '', $id ),
-			'photoUrl' => $photo_url ?: '',
-			'url'      => get_permalink( $id ),
-			'level'    => p313_field( 'level', '', $id ),
-			'members'  => $members,
+			'id'    => (string) $id,
+			'name'  => get_the_title( $id ),
+			'age'   => p313_field( 'age', '', $id ),
+			'note'  => '',
+			'url'   => get_permalink( $id ),
+			'level' => p313_field( 'level', '', $id ),
 		);
 	}
 
@@ -281,14 +266,30 @@ function p313_get_frontend_data() {
 		}
 	}
 
-	$ages = p313_option( 'service_ages', array() );
 	$ages_out = array();
-	if ( is_array( $ages ) ) {
-		foreach ( $ages as $row ) {
-			$ages_out[] = array(
-				'id'    => $row['id'] ?? '',
-				'label' => $row['label'] ?? '',
-			);
+	foreach ( p313_posts( 'p313_kids' ) as $group ) {
+		$ages_out[] = array(
+			'id'    => (string) $group->ID,
+			'label' => get_the_title( $group ),
+		);
+	}
+	if ( $ages_out ) {
+		array_unshift(
+			$ages_out,
+			array(
+				'id'    => 'all',
+				'label' => 'Все группы',
+			)
+		);
+	} else {
+		$ages = p313_option( 'service_ages', array() );
+		if ( is_array( $ages ) ) {
+			foreach ( $ages as $row ) {
+				$ages_out[] = array(
+					'id'    => $row['id'] ?? '',
+					'label' => $row['label'] ?? '',
+				);
+			}
 		}
 	}
 
