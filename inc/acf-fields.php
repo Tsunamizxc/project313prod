@@ -293,7 +293,7 @@ add_action(
 								'senior' => 'Старшая',
 							),
 							'allow_null' => 1,
-							'instructions' => 'Для младшей и средней на странице группы появится переключатель филиалов.',
+							'instructions' => 'Если в группе есть участницы из двух филиалов, на странице появится переключатель.',
 						)
 					),
 					$field( 'kids_note', 'Описание', 'note', 'textarea', array( 'rows' => 3 ) ),
@@ -305,19 +305,34 @@ add_action(
 						'members',
 						array(
 							$field( 'kids_member_name', 'Имя', 'name' ),
-							$field( 'kids_member_photo', 'Фото', 'photo', 'image', array( 'return_format' => 'id', 'preview_size' => 'medium' ) ),
+							$field( 'kids_member_photo', 'Фото', 'photo', 'image', array( 'return_format' => 'id', 'preview_size' => 'medium', 'instructions' => 'Основное фото. Для старшей группы можно добавить ещё кадры ниже.' ) ),
+							$field(
+								'kids_member_photos',
+								'Дополнительные фото (слайдер)',
+								'photos',
+								'gallery',
+								array(
+									'return_format' => 'id',
+									'preview_size'  => 'medium',
+									'insert'        => 'append',
+									'library'       => 'all',
+									'instructions'  => 'Несколько фото — в карточке участницы старшей группы появится слайдер.',
+								)
+							),
 							$field(
 								'kids_member_branch',
 								'Филиал',
 								'branch',
-								'select',
+								'checkbox',
 								array(
 									'choices' => array(
-										''       => 'Оба филиала',
 										'krasny' => 'Красный Путь',
 										'khimik' => 'Химик',
 									),
-									'allow_null' => 1,
+									'return_format' => 'value',
+									'layout'        => 'horizontal',
+									'toggle'        => 0,
+									'instructions'  => 'Можно отметить оба филиала. Если в группе есть оба — на сайте появится фильтр.',
 								)
 							),
 						),

@@ -8,7 +8,16 @@ $level     = p313_field( 'level', '', $id );
 $photo     = p313_img_url( p313_field( 'photo', '', $id ), 'p313-hero' ) ?: get_the_post_thumbnail_url( $id, 'p313-hero' );
 $members   = p313_field( 'members', array(), $id );
 $team_url  = p313_page_url( 'team' );
-$show_switch = in_array( $level, array( 'junior', 'middle' ), true );
+$is_senior = ( 'senior' === $level );
+$used_branches = array();
+if ( is_array( $members ) ) {
+	foreach ( $members as $member ) {
+		foreach ( p313_member_branches( $member['branch'] ?? '' ) as $branch_key ) {
+			$used_branches[ $branch_key ] = true;
+		}
+	}
+}
+$show_switch   = count( $used_branches ) > 1;
 $members_title = p313_field( 'members_title', 'Участницы', $id );
 $head          = array(
 	'label' => 'группа',
@@ -37,17 +46,36 @@ $head          = array(
   <div class="teachers-grid" data-group-members>
    <?php
 	foreach ( $members as $member ) :
-		$name   = trim( (string) ( $member['name'] ?? '' ) );
-		$murl   = p313_img_url( $member['photo'] ?? '', 'p313-teacher' );
-		$branch = (string) ( $member['branch'] ?? '' );
-		if ( ! $name && ! $murl ) {
+		$name    = trim( (string) ( $member['name'] ?? '' ) );
+		$photos  = p313_gallery_urls( $member['photos'] ?? array(), 'p313-teacher' );
+		$single  = p313_img_url( $member['photo'] ?? '', 'p313-teacher' );
+		if ( $single && ! in_array( $single, $photos, true ) ) {
+			array_unshift( $photos, $single );
+		}
+		$branches = p313_member_branches( $member['branch'] ?? '' );
+		if ( ! $name && ! $photos ) {
 			continue;
 		}
 		?>
-   <article class="card teacher-card" data-member-branch="<?php echo esc_attr( $branch ); ?>">
-    <div style="overflow: hidden;">
-     <?php if ( $murl ) : ?>
-     <img class="teacher-card__img" src="<?php echo esc_url( $murl ); ?>" alt="<?php echo esc_attr( $name ); ?>" loading="lazy">
+   <article class="card teacher-card" data-member-branch="<?php echo esc_attr( implode( ' ', $branches ) ); ?>">
+    <div class="teacher-card__media">
+     <?php if ( $is_senior && count( $photos ) > 1 ) : ?>
+     <div class="card-slider" data-card-slider>
+      <div class="card-slider__viewport">
+       <?php foreach ( $photos as $index => $src ) : ?>
+       <img class="card-slider__img teacher-card__img<?php echo 0 === $index ? ' is-active' : ''; ?>" src="<?php echo esc_url( $src ); ?>" alt="<?php echo esc_attr( $name ); ?>" loading="<?php echo 0 === $index ? 'eager' : 'lazy'; ?>">
+       <?php endforeach; ?>
+      </div>
+      <button class="card-slider__nav card-slider__nav--prev" type="button" aria-label="Предыдущее фото" data-slider-prev></button>
+      <button class="card-slider__nav card-slider__nav--next" type="button" aria-label="Следующее фото" data-slider-next></button>
+      <div class="card-slider__dots" data-slider-dots>
+       <?php foreach ( $photos as $index => $_src ) : ?>
+       <button class="card-slider__dot<?php echo 0 === $index ? ' is-active' : ''; ?>" type="button" aria-label="Фото <?php echo esc_attr( (string) ( $index + 1 ) ); ?>" data-slider-to="<?php echo esc_attr( (string) $index ); ?>"></button>
+       <?php endforeach; ?>
+      </div>
+     </div>
+     <?php elseif ( $photos ) : ?>
+     <img class="teacher-card__img" src="<?php echo esc_url( $photos[0] ); ?>" alt="<?php echo esc_attr( $name ); ?>" loading="lazy">
      <?php else : ?>
      <div class="teacher-card__img teacher-card__img--empty"></div>
      <?php endif; ?>

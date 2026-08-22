@@ -885,10 +885,25 @@
 		callback();
 	}
 
+	function bindGroupMemberSliders() {
+		document.querySelectorAll('[data-group-members] [data-card-slider]').forEach(bindSlider);
+	}
+
+	function memberBranches(value) {
+		return String(value || '')
+			.trim()
+			.split(/\s+/)
+			.filter(Boolean);
+	}
+
 	function bindGroupBranchSwitch() {
 		var root = document.querySelector('[data-group-branch-switch]');
 		var grid = document.querySelector('[data-group-members]');
-		if (!root || !grid) {
+		if (!grid) {
+			return;
+		}
+		bindGroupMemberSliders();
+		if (!root) {
 			return;
 		}
 		var empty = document.querySelector('[data-group-empty]');
@@ -897,8 +912,8 @@
 		function apply(branch) {
 			var visible = 0;
 			cards.forEach(function (card) {
-				var value = card.getAttribute('data-member-branch') || '';
-				var show = !value || value === branch;
+				var list = memberBranches(card.getAttribute('data-member-branch'));
+				var show = !list.length || list.indexOf(branch) !== -1;
 				card.classList.toggle('panel-hidden', !show);
 				if (show) {
 					visible += 1;

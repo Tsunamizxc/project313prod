@@ -538,6 +538,30 @@ function p313_gallery_urls( $value, $size = 'p313-card' ) {
 	return $urls;
 }
 
+/**
+ * Branch keys for a group member. Empty / both means both studios.
+ *
+ * @param mixed $value ACF branch field.
+ * @return string[]
+ */
+function p313_member_branches( $value ) {
+	if ( is_array( $value ) ) {
+		$out = array();
+		foreach ( $value as $item ) {
+			$key = trim( (string) $item );
+			if ( $key && ! in_array( $key, $out, true ) ) {
+				$out[] = $key;
+			}
+		}
+		return $out ? $out : array( 'krasny', 'khimik' );
+	}
+	$key = trim( (string) $value );
+	if ( '' === $key ) {
+		return array( 'krasny', 'khimik' );
+	}
+	return array( $key );
+}
+
 function p313_img_url( $image, $size = 'large' ) {
 	if ( empty( $image ) ) {
 		return '';

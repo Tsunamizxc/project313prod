@@ -271,6 +271,48 @@ html.is-lock {
 	background: var(--color-ice-30);
 }
 
+[data-group-members] .teacher-card__media {
+	position: relative;
+	overflow: hidden;
+}
+
+[data-group-members] .card-slider,
+[data-group-members] .card-slider__viewport {
+	height: 28.8rem;
+}
+
+[data-group-members] .card-slider__img,
+[data-group-members] .teacher-card__img {
+	display: block;
+	width: 100%;
+	height: 28.8rem;
+	-o-object-fit: cover;
+	object-fit: cover;
+}
+
+[data-group-members] .card-slider__img {
+	display: none;
+}
+
+[data-group-members] .card-slider__img.is-active {
+	display: block;
+}
+
+[data-group-members] .teacher-card:hover .teacher-card__img {
+	-webkit-transform: none;
+	-ms-transform: none;
+	transform: none;
+}
+
+@media (min-width: 1025px) {
+	[data-group-members] .card-slider,
+	[data-group-members] .card-slider__viewport,
+	[data-group-members] .card-slider__img,
+	[data-group-members] .teacher-card__img {
+		height: 45rem;
+	}
+}
+
 .group-page__back {
 	display: -webkit-inline-box;
 	display: -ms-inline-flexbox;
